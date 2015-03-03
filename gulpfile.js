@@ -6,6 +6,38 @@ var $ = require('gulp-load-plugins')();
 var browserSync = require('browser-sync');
 var reload = browserSync.reload;
 
+
+var protractor = require("gulp-protractor").protractor;
+
+
+// Setting up the test task
+gulp.task('protractor', function(cb) {
+    gulp.src(['./src/tests/spec.js']).pipe(protractor({
+        configFile: 'app/tests/e2e/config.js',
+    })).on('error', function(e) {
+        console.log(e)
+    }).on('end', cb);        
+});
+
+/* new
+// Setting up the test task
+gulp.task('protractor', ['webdriver_update'], function(cb) {
+  gulp.src(["./src/tests/spec.js"])
+      .pipe(protractor({
+          configFile: "app/tests/e2e/config.js"
+      })) 
+      .on('error', function(e) { throw e })      
+});
+
+/*
+gulp.src(["./src/tests/*.js"])
+    .pipe(protractor({
+        configFile: "app/tests/e2e/config.js",
+        args: ['--baseUrl', 'http://127.0.0.1:8000']
+    })) 
+    .on('error', function(e) { throw e })
+*/
+
 gulp.task('styles', function () {
   return gulp.src('app/styles/main.scss')
     .pipe($.sourcemaps.init())
@@ -94,6 +126,12 @@ gulp.task('serve', ['styles', 'fonts'], function () {
     'app/images/**/*',
     '.tmp/fonts/**/*'
   ], ['jshint']).on('change', reload);
+
+  gulp.watch(
+    [ 'app/tests/e2e/*.js',
+      'app/index.html'
+    ], 
+    ['protractor']);
 
   gulp.watch('app/styles/**/*.scss', ['styles']);
   gulp.watch('app/fonts/**/*', ['fonts']);
